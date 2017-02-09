@@ -11,6 +11,8 @@ function passhole#read_afile()
     let &undolevels = ul
     unlet ul
 
+    setfiletype hole
+
     setl noundofile
     setl noswapfile
     set viminfo=
