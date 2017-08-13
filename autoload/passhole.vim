@@ -23,6 +23,8 @@ function passhole#read_afile()
 endfunction
 
 function passhole#write_afile()
-    silent write !gpg --yes -se -q -r chreekat --armor --output <afile>
-    setl nomodified
+    silent write !gpg --yes -se -q -r 0x20068bfb --armor --output <afile>
+    if ! v:shell_error
+        setl nomodified
+    endif
 endfunction
