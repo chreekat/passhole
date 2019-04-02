@@ -1,4 +1,4 @@
-function passhole#read_afile()
+function! passhole#read_afile()
     silent 0read ++edit !gpg -d -q --output - <afile> 2>/dev/null
 
     " Dance with undolevels to clear history. See :help 'clear-undo'
@@ -33,9 +33,27 @@ function passhole#read_afile()
     nnoremap <buffer> <F5> "+yiW
 endfunction
 
-function passhole#write_afile()
-    silent write !gpg --yes -se -q -r 0x20068bfb --armor --output <afile>
-    if ! v:shell_error
-        setl nomodified
+function! s:foldMap1(mappend, map, xs)
+    if len(a:xs) == 0
+        throw "passhole#foldMap1: List must be non-empty"
+    endif
+    let ms = map(copy(a:xs), a:map)
+    let acc = ms[0]
+    for v in ms[1:]
+        let acc = a:mappend(acc, v)
+    endfor
+    return acc
+endfunction
+
+function! passhole#write_afile()
+    if exists('g:passhole_recipients')
+        let afile = expand("<afile>")
+        let keyArgs = s:foldMap1({a, b -> a . ' ' . b}, {k, v -> '-r ' . v}, g:passhole_recipients)
+        exec printf("silent write !gpg --yes -se -q %s --armor --output %s", l:keyArgs, l:afile)
+        if ! v:shell_error
+            setl nomodified
+        endif
+    else
+        echoerr "You must specify g:passhole_recipients (a List of GPG keys) to write this buffer!"
     endif
 endfunction
