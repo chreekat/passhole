@@ -49,9 +49,11 @@ function! passhole#write_afile()
     if exists('g:passhole_recipients')
         let afile = expand("<afile>")
         let keyArgs = s:foldMap1({a, b -> a . ' ' . b}, {k, v -> '-r ' . v}, g:passhole_recipients)
-        exec printf("silent write !gpg --yes -se -q %s --armor --output %s", l:keyArgs, l:afile)
+        let emsg = execute(printf("write !gpg --yes -se -q %s --armor --output %s", l:keyArgs, l:afile))
         if ! v:shell_error
             setl nomodified
+        else
+            echoe emsg
         endif
     else
         echoerr "You must specify g:passhole_recipients (a List of GPG keys) to write this buffer!"
